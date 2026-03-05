@@ -3,7 +3,9 @@
 """
 from .base import BaseParser, ParseResult
 from .epub_parser import EpubParser
+from .epub_parser_v2 import EpubParserV2
 from .mobi_parser import MobiParser
+from .mobi_parser_v2 import MobiParserV2
 from .txt_parser import TxtParser
 
 __all__ = [
@@ -11,7 +13,9 @@ __all__ = [
     "ParseResult",
     "TxtParser",
     "EpubParser",
+    "EpubParserV2",
     "MobiParser",
+    "MobiParserV2",
     "get_parser",
 ]
 
