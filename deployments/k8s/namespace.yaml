@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: novel-parser
+  labels:
+    name: novel-parser
+    app: novel-parser

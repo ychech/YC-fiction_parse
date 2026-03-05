@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: novel-parser-config
+  namespace: novel-parser
+data:
+  ENV: "production"
+  DEBUG: "false"
+  DB_POSTGRES_HOST: "postgres-service"
+  DB_POSTGRES_PORT: "5432"
+  DB_POSTGRES_DB: "novel_parser"
+  DB_MONGODB_URL: "mongodb://mongo-service:27017/novel_parser"
+  DB_REDIS_HOST: "redis-service"
+  DB_REDIS_PORT: "6379"
+  CELERY_BROKER_URL: "redis://redis-service:6379/1"
+  CELERY_RESULT_BACKEND: "redis://redis-service:6379/2"
+  AI_OPENAI_MODEL: "gpt-3.5-turbo"
+  AI_USE_LOCAL_MODEL: "false"
+  PROC_ENABLE_RULE_ENGINE: "true"
+  PROC_ENABLE_AI_ENGINE: "true"
+  PROC_ENABLE_FUSION: "true"

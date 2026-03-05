@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: novel-parser
+  labels:
+    app: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: novel-parser:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: novel-parser-config
+        env:
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: novel-parser-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: AI_OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: novel-parser-secrets
+              key: AI_OPENAI_API_KEY
+        - name: SECURITY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: novel-parser-secrets
+              key: SECURITY_SECRET_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: novel-parser
+spec:
+  selector:
+    app: api
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP

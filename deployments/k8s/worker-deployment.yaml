@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-deployment
+  namespace: novel-parser
+  labels:
+    app: worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: novel-parser:latest
+        command: ["celery"]
+        args: ["-A", "src.service_layer.celery_app", "worker", "-l", "info", "-Q", "parsing,analysis,default", "-c", "4"]
+        envFrom:
+        - configMapRef:
+            name: novel-parser-config
+        env:
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: novel-parser-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: AI_OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: novel-parser-secrets
+              key: AI_OPENAI_API_KEY
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/storage
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: uploads-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: uploads-pvc
+  namespace: novel-parser
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
